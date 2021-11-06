@@ -6,7 +6,7 @@ import com.tenpo.api.exception.UserAlreadyExistException;
 import com.tenpo.api.service.UserService;
 import java.net.URI;
 import javax.validation.Valid;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.AllArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -16,10 +16,10 @@ import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 @RestController
 @RequestMapping("/api/user")
+@AllArgsConstructor
 public class UserController {
 
-    @Autowired
-    UserService userService;
+    private final UserService userService;
 
     @PostMapping("/singup")
     public ResponseEntity<User> singUpUser(@Valid @RequestBody UserDTO userDTO) throws UserAlreadyExistException {
