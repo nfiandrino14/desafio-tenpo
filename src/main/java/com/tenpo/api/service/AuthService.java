@@ -1,8 +1,11 @@
 package com.tenpo.api.service;
 
 import com.auth0.jwt.JWT;
+import com.auth0.jwt.JWTVerifier;
 import com.auth0.jwt.algorithms.Algorithm;
+import com.auth0.jwt.interfaces.DecodedJWT;
 import com.tenpo.api.dto.AccessTokenDTO;
+import static com.tenpo.api.filter.CustomAuthorizationFilter.BEARER;
 import java.util.Date;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
@@ -60,6 +63,23 @@ public class AuthService {
         cache.addUser(access_token, user.getUsername());
         return new AccessTokenDTO(access_token);
 
+    }
+
+    public String invalidateAccessToken(String authHeader) {
+        String token = authHeader.substring(BEARER.length());
+        String username = getUsernameFromToken(token);
+        if (cache.isUserOnCache(token)) {
+            log.info("[Log out Succesfull] {} disconected and removing data from cache", username);
+            cache.removeUser(token);
+        }
+        return username;
+    }
+
+    private String getUsernameFromToken(String token) {
+        Algorithm algorithm = Algorithm.HMAC256(env.getProperty(SECRET_KEY).getBytes());
+        JWTVerifier verifier = JWT.require(algorithm).build();
+        DecodedJWT decodedJWT = verifier.verify(token);
+        return decodedJWT.getSubject();
     }
 
 }

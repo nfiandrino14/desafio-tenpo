@@ -19,7 +19,7 @@ public class CustomAuthenticationEntryPoint extends BasicAuthenticationEntryPoin
                 "{ \"message\": \"Unauthorized request\","
                 + "\"details\": [\"You need to login first in order to perform this action.\"]}");
     }
-    
+
     @Override
     public void afterPropertiesSet(){
         setRealmName("tenpo-entry-point");

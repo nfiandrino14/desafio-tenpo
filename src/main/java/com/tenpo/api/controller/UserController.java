@@ -11,12 +11,16 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import java.net.URI;
+import java.util.HashMap;
+import java.util.Map;
 import javax.validation.Valid;
 import lombok.AllArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
@@ -51,4 +55,12 @@ public class UserController {
         return ResponseEntity.ok(authService.generateAccessToken(auth));
     }
 
+    @GetMapping("/logout")
+    @ApiOperation(value = "User Logout")
+    public ResponseEntity<Map<String, String>> logout(@RequestHeader(required = true, value = "Authorization") String authHeader) {
+        Map<String, String> logoutMsg = new HashMap<>();
+        String username = authService.invalidateAccessToken(authHeader);
+        logoutMsg.put("message", "user ".concat(username).concat(" logged out successfully."));
+        return ResponseEntity.ok(logoutMsg);
+    }
 }

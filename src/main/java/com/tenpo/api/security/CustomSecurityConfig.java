@@ -1,7 +1,6 @@
 package com.tenpo.api.security;
 
 import com.tenpo.api.filter.CustomAuthorizationFilter;
-import com.tenpo.api.filter.CustomLogoutHandler;
 import com.tenpo.api.service.UserLogedCache;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -10,7 +9,6 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.core.env.Environment;
 import static org.springframework.http.HttpMethod.GET;
 import static org.springframework.http.HttpMethod.POST;
-import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -20,9 +18,7 @@ import org.springframework.security.config.annotation.web.configuration.WebSecur
 import static org.springframework.security.config.http.SessionCreationPolicy.STATELESS;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
-import org.springframework.security.web.authentication.logout.HttpStatusReturningLogoutSuccessHandler;
 
 @Configuration
 @EnableWebSecurity
@@ -38,7 +34,6 @@ public class CustomSecurityConfig extends WebSecurityConfigurerAdapter {
 
     private final UserDetailsService userDetailsService;
     private final BCryptPasswordEncoder bCryptPasswordEncoder;
-    private final CustomLogoutHandler logoutHandler;
     private final UserLogedCache cache;
     private final CustomAuthenticationEntryPoint customAuthenticatorEntryPoint;
 
@@ -74,9 +69,6 @@ public class CustomSecurityConfig extends WebSecurityConfigurerAdapter {
                 .antMatchers(POST, ENDPOINT_REGISTER_USER).permitAll()
                 .antMatchers(GET, ENDPOINTS_AUTH).hasAnyAuthority(ROLE_NEEDED)
                 .anyRequest().authenticated()
-                .and()
-                .logout().logoutUrl("/api/logout").addLogoutHandler(logoutHandler)
-                .logoutSuccessHandler(new HttpStatusReturningLogoutSuccessHandler(HttpStatus.OK))
                 .and()
                 .addFilterBefore(new CustomAuthorizationFilter(env, cache), UsernamePasswordAuthenticationFilter.class);
     }
