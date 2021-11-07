@@ -18,6 +18,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.core.env.Environment;
 import static org.springframework.http.HttpHeaders.AUTHORIZATION;
 import static org.springframework.http.HttpStatus.FORBIDDEN;
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
@@ -31,18 +32,21 @@ import org.springframework.web.filter.OncePerRequestFilter;
 public class CustomAuthorizationFilter extends OncePerRequestFilter {
 
     public static final String BEARER = "Bearer ";
+    public static final String SECRET_KEY = "jwt.secret.key";
+
+    private final Environment env;
     private final UserLogedCache cache;
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
-        if (request.getServletPath().equals("/api/login")) {
+        if (request.getServletPath().equals("/api/user/login")) {
             filterChain.doFilter(request, response);
         } else {
             String authorizationHeader = request.getHeader(AUTHORIZATION);
             if (authorizationHeader != null && authorizationHeader.startsWith(BEARER)) {
                 try {
                     String token = authorizationHeader.substring(BEARER.length());
-                    Algorithm algorithm = Algorithm.HMAC256("top-secret".getBytes());
+                    Algorithm algorithm = Algorithm.HMAC256(env.getProperty(SECRET_KEY).getBytes());
                     JWTVerifier verifier = JWT.require(algorithm).build();
                     DecodedJWT decodedJWT = verifier.verify(token);
                     String username = decodedJWT.getSubject();

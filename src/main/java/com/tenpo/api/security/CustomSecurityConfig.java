@@ -4,8 +4,10 @@ import com.tenpo.api.filter.CustomAuthorizationFilter;
 import com.tenpo.api.filter.CustomLogoutHandler;
 import com.tenpo.api.service.UserLogedCache;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.env.Environment;
 import static org.springframework.http.HttpMethod.GET;
 import static org.springframework.http.HttpMethod.POST;
 import org.springframework.http.HttpStatus;
@@ -18,18 +20,30 @@ import org.springframework.security.config.annotation.web.configuration.WebSecur
 import static org.springframework.security.config.http.SessionCreationPolicy.STATELESS;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.security.web.authentication.logout.HttpStatusReturningLogoutSuccessHandler;
 
 @Configuration
 @EnableWebSecurity
 @RequiredArgsConstructor
-public class SecurityConfig extends WebSecurityConfigurerAdapter {
+public class CustomSecurityConfig extends WebSecurityConfigurerAdapter {
+
+    private static final String ENDPOINT_REGISTER_USER = "/api/user/**";
+    private static final String ROLE_NEEDED = "USER_ROLE";
+    private static final String[] ENDPOINTS_AUTH = {
+        "/api/calculator/**",
+        "/api/trace/history/**",
+        "/api/logout/**"};
 
     private final UserDetailsService userDetailsService;
     private final BCryptPasswordEncoder bCryptPasswordEncoder;
     private final CustomLogoutHandler logoutHandler;
     private final UserLogedCache cache;
+    private final CustomAuthenticationEntryPoint customAuthenticatorEntryPoint;
+
+    @Autowired
+    private final Environment env;
 
     @Override
     protected void configure(AuthenticationManagerBuilder auth) throws Exception {
@@ -49,16 +63,22 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
     @Override
     protected void configure(HttpSecurity http) throws Exception {
-        http.csrf().disable();
-        http.sessionManagement().sessionCreationPolicy(STATELESS);
-        http.authorizeRequests().antMatchers(POST, "/api/user/**").permitAll();
-        http.authorizeRequests().antMatchers(GET, "/api/calculator/**").hasAnyAuthority("USER_ROLE");
-        http.authorizeRequests().antMatchers(GET, "/api/trace/history/**").hasAnyAuthority("USER_ROLE");
-        http.authorizeRequests().antMatchers(GET, "/api/logout/**").hasAnyAuthority("USER_ROLE");
-        http.logout().logoutUrl("/api/logout").addLogoutHandler(logoutHandler)
-                .logoutSuccessHandler(new HttpStatusReturningLogoutSuccessHandler(HttpStatus.OK));
-        http.authorizeRequests().anyRequest().authenticated();
-        http.addFilterBefore(new CustomAuthorizationFilter(cache), UsernamePasswordAuthenticationFilter.class);
+        http.csrf().disable()
+                .exceptionHandling()
+                .authenticationEntryPoint(customAuthenticatorEntryPoint)
+                .and()
+                .sessionManagement()
+                .sessionCreationPolicy(STATELESS)
+                .and()
+                .authorizeRequests()
+                .antMatchers(POST, ENDPOINT_REGISTER_USER).permitAll()
+                .antMatchers(GET, ENDPOINTS_AUTH).hasAnyAuthority(ROLE_NEEDED)
+                .anyRequest().authenticated()
+                .and()
+                .logout().logoutUrl("/api/logout").addLogoutHandler(logoutHandler)
+                .logoutSuccessHandler(new HttpStatusReturningLogoutSuccessHandler(HttpStatus.OK))
+                .and()
+                .addFilterBefore(new CustomAuthorizationFilter(env, cache), UsernamePasswordAuthenticationFilter.class);
     }
 
     @Bean
@@ -66,4 +86,5 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     public AuthenticationManager authenticationManagerBean() throws Exception {
         return super.authenticationManagerBean();
     }
+
 }
