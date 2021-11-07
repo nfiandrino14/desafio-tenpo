@@ -25,6 +25,7 @@ public class CustomHttpTraceRepository implements HttpTraceRepository {
     @Override
     public void add(HttpTrace httpTrace) {
         Trace trace = new Trace();
+        trace.setMethod(httpTrace.getRequest().getMethod());
         trace.setEndpoint(httpTrace.getRequest().getUri().toString());
         trace.setStatusCode(httpTrace.getResponse().getStatus());
         trace.setTimeStamp(httpTrace.getTimestamp().toString());
