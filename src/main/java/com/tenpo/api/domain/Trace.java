@@ -24,13 +24,17 @@ public class Trace {
     @Column(name = "time")
     private String timeStamp;
 
+    @Column(name = "method")
+    private String method;
+
     public Trace() {
     }
 
-    public Trace(String endpoint, int statusCode, String timeStamp) {
+    public Trace(String endpoint, int statusCode, String timeStamp, String method) {
         this.endpoint = endpoint;
         this.statusCode = statusCode;
         this.timeStamp = timeStamp;
+        this.method = method;
     }
 
     public Long getId() {
@@ -59,6 +63,14 @@ public class Trace {
 
     public void setTimeStamp(String timeStamp) {
         this.timeStamp = timeStamp;
+    }
+
+    public String getMethod() {
+        return method;
+    }
+
+    public void setMethod(String method) {
+        this.method = method;
     }
 
 }
