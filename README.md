@@ -13,7 +13,7 @@ Steps for executing :
 
 3. Install mvn dependencies.
 
-   		mvn install
+		mvn clean install
 
 4. Open the terminal and go to the directory where docker-compose.yml is located and run the below command and will build the PostgreSQL and Spring Boot Rest API Containers.
 

@@ -2,12 +2,14 @@ package com.tenpo.api.exception;
 
 import java.util.ArrayList;
 import java.util.List;
+import org.springframework.beans.TypeMismatchException;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.validation.ObjectError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
+import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.context.request.WebRequest;
@@ -59,4 +61,20 @@ public class CustomExceptionHandler extends ResponseEntityExceptionHandler {
         return new ResponseEntity(error, HttpStatus.FORBIDDEN);
     }
 
+    @Override
+    protected ResponseEntity<Object> handleMissingServletRequestParameter(MissingServletRequestParameterException ex, HttpHeaders headers, HttpStatus status, WebRequest request) {
+        List<String> details = new ArrayList<>();
+        details.add(ex.getLocalizedMessage());
+        ErrorResponse error = new ErrorResponse("Missing parameters", details);
+        return new ResponseEntity(error, HttpStatus.BAD_REQUEST);
+    }
+
+    @Override
+    public final ResponseEntity<Object> handleTypeMismatch(
+        TypeMismatchException ex, HttpHeaders headers, HttpStatus status, WebRequest request) {
+        List<String> details = new ArrayList<>();
+        details.add(ex.getLocalizedMessage());
+        ErrorResponse error = new ErrorResponse("Invalid parameter type", details);
+        return new ResponseEntity(error, HttpStatus.BAD_REQUEST);
+    }
 }
