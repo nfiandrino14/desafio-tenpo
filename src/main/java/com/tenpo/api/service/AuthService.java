@@ -7,6 +7,8 @@ import java.util.Date;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.env.Environment;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.DisabledException;
@@ -23,9 +25,13 @@ public class AuthService {
 
     public static final long ACCESS_TOKEN_EXPIRATION = 15 * 60 * 1000;
     public static final String ROLES = "roles";
+    public static final String SECRET_KEY = "jwt.secret.key";
 
     private final AuthenticationManager authenticationManager;
     private final UserLogedCache cache;
+
+    @Autowired
+    private Environment env;
 
     public Authentication authenticate(String username, String password) {
         try {
@@ -41,9 +47,8 @@ public class AuthService {
 
     public AccessTokenDTO generateAccessToken(Authentication auth) {
         User user = (User) auth.getPrincipal();
-        Algorithm algorithm = Algorithm.HMAC256("top-secret".getBytes());
+        Algorithm algorithm = Algorithm.HMAC256(env.getProperty(SECRET_KEY).getBytes());
         Long startTime = System.currentTimeMillis();
-
         String access_token = JWT.create()
                 .withSubject(user.getUsername())
                 .withIssuedAt(new Date(startTime))

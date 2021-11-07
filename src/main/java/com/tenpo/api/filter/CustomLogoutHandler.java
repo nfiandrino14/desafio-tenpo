@@ -5,11 +5,13 @@ import com.auth0.jwt.JWTVerifier;
 import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.interfaces.DecodedJWT;
 import static com.tenpo.api.filter.CustomAuthorizationFilter.BEARER;
+import static com.tenpo.api.filter.CustomAuthorizationFilter.SECRET_KEY;
 import com.tenpo.api.service.UserLogedCache;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.core.env.Environment;
 import static org.springframework.http.HttpHeaders.AUTHORIZATION;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.web.authentication.logout.LogoutHandler;
@@ -21,13 +23,14 @@ import org.springframework.stereotype.Component;
 public class CustomLogoutHandler implements LogoutHandler {
 
     private final UserLogedCache cache;
+    private final Environment env;
 
     @Override
     public void logout(HttpServletRequest request, HttpServletResponse response, Authentication a) {
         String authorizationHeader = request.getHeader(AUTHORIZATION);
         if (authorizationHeader != null && authorizationHeader.startsWith(BEARER)) {
             String token = authorizationHeader.substring(BEARER.length());
-            Algorithm algorithm = Algorithm.HMAC256("top-secret".getBytes());
+            Algorithm algorithm = Algorithm.HMAC256(env.getProperty(SECRET_KEY).getBytes());
             JWTVerifier verifier = JWT.require(algorithm).build();
             DecodedJWT decodedJWT = verifier.verify(token);
             String username = decodedJWT.getSubject();
