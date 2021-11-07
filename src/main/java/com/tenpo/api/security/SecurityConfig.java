@@ -45,7 +45,9 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
         http.sessionManagement().sessionCreationPolicy(STATELESS);
         http.authorizeRequests().antMatchers("/api/login/**").permitAll();
         http.authorizeRequests().antMatchers(POST, "/api/user/**").permitAll();
+        http.authorizeRequests().antMatchers(GET, "/actuator/httptrace/**").hasAnyAuthority("USER_ROLE");
         http.authorizeRequests().antMatchers(GET, "/api/calculator/**").hasAnyAuthority("USER_ROLE");
+        http.authorizeRequests().antMatchers(GET, "/api/trace/history/**").hasAnyAuthority("USER_ROLE");
         http.authorizeRequests().antMatchers(GET, "/api/logout/**").hasAnyAuthority("USER_ROLE");
         http.logout().logoutUrl("/api/logout").addLogoutHandler(logoutHandler)
                 .logoutSuccessHandler(new HttpStatusReturningLogoutSuccessHandler(HttpStatus.OK));
