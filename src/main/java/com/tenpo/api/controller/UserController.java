@@ -4,6 +4,9 @@ import com.tenpo.api.domain.User;
 import com.tenpo.api.dto.UserDTO;
 import com.tenpo.api.exception.UserAlreadyExistException;
 import com.tenpo.api.service.UserService;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiParam;
 import java.net.URI;
 import javax.validation.Valid;
 import lombok.AllArgsConstructor;
@@ -17,12 +20,15 @@ import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 @RestController
 @RequestMapping("/api/user")
 @AllArgsConstructor
+@Api(tags = "Users")
 public class UserController {
 
     private final UserService userService;
 
     @PostMapping("/singup")
-    public ResponseEntity<User> singUpUser(@Valid @RequestBody UserDTO userDTO) throws UserAlreadyExistException {
+    @ApiOperation(value = "User Register")
+    public ResponseEntity<User> singUpUser(@ApiParam(value = "User to register", required = true) @Valid @RequestBody UserDTO userDTO) throws UserAlreadyExistException {
+
         if (userService.isUserRegistered(userDTO.getUsername().trim().toLowerCase())) {
             throw new UserAlreadyExistException("User is already registered: " + userDTO.getUsername());
         }
