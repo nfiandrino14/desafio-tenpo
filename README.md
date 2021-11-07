@@ -27,3 +27,5 @@ Steps for executing :
 
    		http://localhost:8080/swagger-ui.html#/
 
+
+6. You can also use the api with this postman collection: https://www.getpostman.com/collections/3cd217cc09e0378dda94
