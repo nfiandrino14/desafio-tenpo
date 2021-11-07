@@ -5,6 +5,7 @@ import java.util.List;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.validation.ObjectError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
@@ -33,11 +34,11 @@ public class CustomExceptionHandler extends ResponseEntityExceptionHandler {
     }
 
     @ExceptionHandler(UserAlreadyExistException.class)
-    public final ResponseEntity<Object> handeUserAlreadyExistException(UserAlreadyExistException ex, WebRequest request){
+    public final ResponseEntity<Object> handleUserAlreadyExistException(UserAlreadyExistException ex, WebRequest request){
         List<String> details = new ArrayList<>();
         details.add(ex.getLocalizedMessage());
         ErrorResponse error = new ErrorResponse("User Already Exists", details);
-        return new ResponseEntity(error, HttpStatus.BAD_REQUEST); 
+        return new ResponseEntity(error, HttpStatus.BAD_REQUEST);
     }
 
     @Override
@@ -48,6 +49,14 @@ public class CustomExceptionHandler extends ResponseEntityExceptionHandler {
         }
         ErrorResponse error = new ErrorResponse("Data Validation Failed", details);
         return new ResponseEntity(error, HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(BadCredentialsException.class)
+    public final ResponseEntity<Object> handleBadCredentialsException(BadCredentialsException ex, WebRequest request) {
+        List<String> details = new ArrayList<>();
+        details.add(ex.getLocalizedMessage());
+        ErrorResponse error = new ErrorResponse("Bad credentials", details);
+        return new ResponseEntity(error, HttpStatus.FORBIDDEN);
     }
 
 }

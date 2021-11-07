@@ -1,6 +1,5 @@
 package com.tenpo.api.security;
 
-import com.tenpo.api.filter.CustomAuthenticationFilter;
 import com.tenpo.api.filter.CustomAuthorizationFilter;
 import com.tenpo.api.filter.CustomLogoutHandler;
 import com.tenpo.api.service.UserLogedCache;
@@ -50,11 +49,8 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
     @Override
     protected void configure(HttpSecurity http) throws Exception {
-        CustomAuthenticationFilter customAuthenticationFilter = new CustomAuthenticationFilter(authenticationManagerBean(), cache);
-        customAuthenticationFilter.setFilterProcessesUrl("/api/login");
         http.csrf().disable();
         http.sessionManagement().sessionCreationPolicy(STATELESS);
-        http.authorizeRequests().antMatchers("/api/login/**").permitAll();
         http.authorizeRequests().antMatchers(POST, "/api/user/**").permitAll();
         http.authorizeRequests().antMatchers(GET, "/api/calculator/**").hasAnyAuthority("USER_ROLE");
         http.authorizeRequests().antMatchers(GET, "/api/trace/history/**").hasAnyAuthority("USER_ROLE");
@@ -62,7 +58,6 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
         http.logout().logoutUrl("/api/logout").addLogoutHandler(logoutHandler)
                 .logoutSuccessHandler(new HttpStatusReturningLogoutSuccessHandler(HttpStatus.OK));
         http.authorizeRequests().anyRequest().authenticated();
-        http.addFilter(customAuthenticationFilter);
         http.addFilterBefore(new CustomAuthorizationFilter(cache), UsernamePasswordAuthenticationFilter.class);
     }
 
