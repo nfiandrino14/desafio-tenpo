@@ -39,4 +39,9 @@ public class UserLogedCache {
     public boolean isUserOnCache(String token) {
         return (cache.getIfPresent(token) != null);
     }
+
+    public LoadingCache<String, String> getCache() {
+        return cache;
+    }
+
 }
