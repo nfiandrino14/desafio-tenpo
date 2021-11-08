@@ -1,4 +1,24 @@
-# Desafio Tenpo ->  spring-boot-docker-rest-api
+# Desafio Tenpo
+
+## Table of Contents
+
+1. [General Info](#general-info)
+2. [Technologies](#technologies)
+3. [Installation](#installation)
+
+### General Info
+***
+Restful API with spring boot for tenpo user management.
+
+### Technologies
+***
+A list of technologies used within the project ( It is recommended that you have the following technologies installed )
+* [Java 17](https://www.oracle.com/java/technologies/javase/jdk17-archive-downloads.html)
+* [Maven](https://maven.apache.org/)
+* [Docker](https://docs.docker.com/get-docker/)
+
+### Installation
+***
 Building RESTFul API Services using spring boot, PostgreSQL and Swagger Documentation with containerization using Docker
 
 Steps for executing :
